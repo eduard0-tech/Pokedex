@@ -1,0 +1,10 @@
+{
+    "rules": {
+        "no-console": "off" // Permite o uso de console.log (o Airbnb proíbe por padrão)
+    },
+    "env": {
+        "node": true,
+        "es2021": true
+    },
+    "extends": "airbnb-base"
+}
