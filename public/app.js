@@ -1,141 +1,148 @@
-var a = [];
-var b = [];
-var c = 1;
-var d = 20;
-var e = '';
-var f1 = '';
-var g = null;
+const API_POKEMON = 'https://pokeapi.co/api/v2/pokemon';
+const API_TYPE = 'https://pokeapi.co/api/v2/type';
+const PAGE_SIZE = 20;
 
-const API = 'https://pokeapi.co/api/v2/pokemon';
-const API2 = 'https://pokeapi.co/api/v2/type';
+let currentPage = 1;
+let pokemonList = [];
+let displayedList = [];
+let searchQuery = '';
+let typeFilter = '';
 
-async function i() {
+async function init() {
     document.getElementById('loading').innerHTML = '';
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < PAGE_SIZE; i++) {
         document.getElementById('loading').innerHTML += '<div class="col-md-3"><div class="skeleton"></div></div>';
     }
 
     try {
-        var r = await fetch(API2);
-        var dt = await r.json();
-        var sel = document.getElementById('typeFilter');
-        for (var i = 0; i < dt.results.length; i++) {
-            var opt = document.createElement('option');
-            opt.value = dt.results[i].name;
-            opt.textContent = dt.results[i].name.charAt(0).toUpperCase() + dt.results[i].name.slice(1);
-            sel.appendChild(opt);
-        }
+        const response = await fetch(API_TYPE);
+        const data = await response.json();
+        const selectElement = document.getElementById('typeFilter');
+
+        data.results.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.name;
+            option.textContent = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+            selectElement.appendChild(option);
+        });
     } catch (err) {
-        console.log('erro');
+        console.error('Erro ao carregar tipos:', err);
     }
 
-    l();
+    loadPokemons();
 }
 
-async function l() {
+async function loadPokemons() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('pokemonGrid').style.display = 'none';
 
     try {
-        var off = (c - 1) * d;
-        var ur = API + '?limit=' + d + '&offset=' + off;
-        var r = await fetch(ur);
-        var dt = await r.json();
+        const offset = (currentPage - 1) * PAGE_SIZE;
+        const url = `${API_POKEMON}?limit=${PAGE_SIZE}&offset=${offset}`;
 
-        var pro = [];
-        for (var i = 0; i < dt.results.length; i++) {
-            pro.push(fetch(dt.results[i].url));
+        let response = await fetch(url);
+        let data = await response.json();
+
+        const detailPromises = data.results.map(p => fetch(p.url));
+        const detailResponses = await Promise.all(detailPromises);
+
+        pokemonList = [];
+        for (let i = 0; i < detailResponses.length; i++) {
+            const pokemon = await detailResponses[i].json();
+            pokemonList.push(pokemon);
         }
 
-        var r = await Promise.all(pro);
-        a = [];
-        for (var i = 0; i < r.length; i++) {
-            var pokemon = await r[i].json();
-            a.push(pokemon);
-        }
-
-        b = [...a];
-        UNIFOR();
+        displayedList = [...pokemonList];
+        renderGrid();
     } catch (error) {
-        console.log('erro ao carregar');
+        console.error('Erro ao carregar Pokémons:', error);
         alert('Erro ao carregar Pokémons!');
     }
 }
 
-async function lbt() {
+async function loadPokemonsByType() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('pokemonGrid').style.display = 'none';
 
     try {
-        var ur = API2 + '/' + f1;
-        var r = await fetch(ur);
-        var dt = await r.json();
+        const url = `${API_TYPE}/${typeFilter}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-        var pr = [];
-        var li = dt.pokemon.length > 100 ? 100 : dt.pokemon.length; // Limita a 100
-        for (var i = 0; i < li; i++) {
-            pr.push(fetch(dt.pokemon[i].pokemon.url));
+        const limit = data.pokemon.length > 100 ? 100 : data.pokemon.length;
+
+        const detailPromises = [];
+        for (let i = 0; i < limit; i++) {
+            detailPromises.push(fetch(data.pokemon[i].pokemon.url));
         }
 
-        var rps = await Promise.all(pr);
-        a = [];
-        for (var i = 0; i < rps.length; i++) {
-            var p = await rps[i].json();
-            a.push(p);
+        const detailResponses = await Promise.all(detailPromises);
+        pokemonList = [];
+        for (let i = 0; i < detailResponses.length; i++) {
+            const pokemon = await detailResponses[i].json();
+            pokemonList.push(pokemon);
         }
 
-        b = [...a];
-        UNIFOR();
+        displayedList = [...pokemonList];
+        renderGrid();
+
     } catch (error) {
-        console.log('erro ao carregar tipo');
+        console.error('Erro ao carregar tipo:', error);
         alert('Erro ao carregar Pokémons do tipo!');
     }
 }
 
-function UNIFOR() {
-    var g = document.getElementById('pokemonGrid');
-    g.innerHTML = '';
+function renderGrid() {
+    const gridElement = document.getElementById('pokemonGrid');
+    gridElement.innerHTML = '';
 
-    var fil = b;
-    if (e !== '') {
-        fil = fil.filter(p => {
-            return p.name.toLowerCase().includes(e.toLowerCase()) ||
-                p.id.toString().includes(e);
+    let filteredList = displayedList;
+    if (searchQuery !== '') {
+        filteredList = filteredList.filter(p => {
+            const lowerCaseQuery = searchQuery.toLowerCase();
+            return p.name.toLowerCase().includes(lowerCaseQuery) ||
+                p.id.toString().includes(searchQuery);
         });
     }
 
-    for (var i = 0; i < fil.length; i++) {
-        var p = fil[i];
-        var fdp = document.createElement('div');
-        fdp.className = 'col-md-3';
+    filteredList.forEach(p => {
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'col-md-3';
 
-        var html = '<div class="c" onclick="showDetails(' + p.id + ')">';
-        html = html + '<img src="' + p.sprites.front_default + '" class="i" alt="' + p.name + '">';
-        html = html + '<h5 class="text-center">#' + p.id + ' ' + p.name.charAt(0).toUpperCase() + p.name.slice(1) + '</h5>';
-        html = html + '<div class="text-center">';
+        const typesHtml = p.types.map(typeEntry => {
+            const typeName = typeEntry.type.name;
+            return `<span class="badge type-${typeName}">${typeName}</span>`;
+        }).join(' ');
 
-        for (var j = 0; j < p.types.length; j++) {
-            var typeName = p.types[j].type.name;
-            html = html + '<span class="badge type-' + typeName + '">' + typeName + '</span> ';
-        }
+        const html = `
+            <div class="c" onclick="showDetails(${p.id})">
+                <img src="${p.sprites.front_default}" class="i" alt="${p.name}">
+                <h5 class="text-center">#${p.id} ${p.name.charAt(0).toUpperCase() + p.name.slice(1)}</h5>
+                <div class="text-center">
+                    ${typesHtml}
+                </div>
+            </div>
+        `;
 
-        html = html + '</div></div>';
-        fdp.innerHTML = html;
-        g.appendChild(fdp);
-    }
+        cardContainer.innerHTML = html;
+        gridElement.appendChild(cardContainer);
+    });
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('pokemonGrid').style.display = 'flex';
 
-    if (f1 !== '') {
-        document.getElementById('pageInfo').textContent = 'Mostrando ' + fil.length + ' pokémons';
+    const pageInfoElement = document.getElementById('pageInfo');
+    if (typeFilter !== '') {
+        pageInfoElement.textContent = `Mostrando ${filteredList.length} Pokémons`;
     } else {
-        document.getElementById('pageInfo').textContent = 'Página ' + c;
+        pageInfoElement.textContent = `Página ${currentPage}`;
     }
 
-    document.getElementById('prevBtn').disabled = c === 1 || f1 !== '';
-    document.getElementById('nextBtn').disabled = f1 !== '';
+    document.getElementById('prevBtn').disabled = currentPage === 1 || typeFilter !== '';
+    document.getElementById('nextBtn').disabled = typeFilter !== '';
 }
+
+/* ----------------------------------------------------------------------------------------- */
 
 async function f() {
     e = document.getElementById('s').value;
