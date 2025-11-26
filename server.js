@@ -1,6 +1,7 @@
 // server.js - Servidor com código propositalmente ruim para prática
 const express = require('express');
 const path = require('path');
+
 const app = express();
 
 // Número mágico - porta hardcoded
@@ -11,16 +12,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Função com múltiplas responsabilidades e nome ruim
 function doStuff(req, res) {
-    // Comentário desnecessário: envia o arquivo HTML
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    
-    // Log confuso
-    console.log('x');
+  // Comentário desnecessário: envia o arquivo HTML
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+
+  // Log confuso
+  console.log('x');
 }
 
 // Rota mal documentada
 app.get('/', doStuff);
-
 // Função anônima inline com lógica misturada
 app.listen(p, () => {
     // String concatenada de forma confusa
