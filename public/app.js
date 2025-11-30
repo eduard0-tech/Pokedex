@@ -115,7 +115,7 @@ function renderGrid() {
         }).join(' ');
 
         const html = `
-            <div class="c" onclick="showDetails(${p.id})">
+            <div class="c" onclick="showPokemonDetails(${p.id})">
                 <img src="${p.sprites.front_default}" class="i" alt="${p.name}">
                 <h5 class="text-center">#${p.id} ${p.name.charAt(0).toUpperCase() + p.name.slice(1)}</h5>
                 <div class="text-center">
@@ -159,7 +159,7 @@ async function filterByType() {
 function resetFilter() {
     document.getElementById('s').value = '';
     document.getElementById('typeFilter').value = '';
-    searchQuerye = '';
+    searchQuery = '';
     typeFilter = '';
     currentPage = 1;
     loadPokemons();
@@ -191,7 +191,7 @@ function darkMode() {
 
 async function showPokemonDetails(id) {
     try {
-        const pokemonResponse = await fetch(API + '/' + id);
+        const pokemonResponse = await fetch(API_POKEMON + '/' + id);
         const pokemon = await pokemonResponse.json();
 
         const speciesResponse = await fetch(pokemon.species.url);
@@ -206,7 +206,7 @@ async function showPokemonDetails(id) {
         }
 
         document.getElementById('modalTitle').textContent =
-            '#' + pokemon.id + ' ' + 
+            '#' + pokemon.id + ' ' +
             pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
 
         let html = '<div class="row"><div class="col-md-6">';
@@ -250,9 +250,9 @@ async function showPokemonDetails(id) {
         const modal = new bootstrap.Modal(document.getElementById('m'));
         modal.show();
 
-} catch (error) {
-    console.log(error);
-    alert('Erro ao carregar detalhes!');
+    } catch (error) {
+        console.log(error);
+        alert('Erro ao carregar detalhes!');
     }
 }
 
