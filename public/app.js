@@ -145,22 +145,22 @@ function renderGrid() {
 /* ----------------------------------------------------------------------------------------- */
 
 async function f() {
-    e = document.getElementById('s').value;
-    f1 = document.getElementById('typeFilter').value;
+    searchQuery = document.getElementById('s').value;
+    typeFilter = document.getElementById('typeFilter').value;
 
     // Se tem filtro de tipo, busca pokémons daquele tipo
-    if (f1 !== '') {
+    if (typeFilter !== '') {
         await lbt();
     } else {
-        UNIFOR();
+        renderGrid();
     }
 }
 
 function r() {
     document.getElementById('s').value = '';
     document.getElementById('typeFilter').value = '';
-    e = '';
-    f1 = '';
+    searchQuerye = '';
+    typeFilter = '';
     c = 1;
     l();
 }
@@ -168,8 +168,8 @@ function r() {
 function p1() {
     if (c > 1) {
         c--;
-        if (f1 !== '') {
-            UNIFOR();
+        if (typeFilter !== '') {
+            renderGrid();
         } else {
             l();
         }
@@ -178,8 +178,8 @@ function p1() {
 
 function p2() {
     c++;
-    if (f1 !== '') {
-        UNIFOR();
+    if (typeFilter !== '') {
+        renderGrid();
     } else {
         l();
     }
