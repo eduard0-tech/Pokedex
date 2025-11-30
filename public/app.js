@@ -144,125 +144,120 @@ function renderGrid() {
 
 /* ----------------------------------------------------------------------------------------- */
 
-async function f() {
+async function filterByType() {
     searchQuery = document.getElementById('s').value;
     typeFilter = document.getElementById('typeFilter').value;
 
     // Se tem filtro de tipo, busca pokémons daquele tipo
     if (typeFilter !== '') {
-        await lbt();
+        await loadPokemonsByType();
     } else {
         renderGrid();
     }
 }
 
-function r() {
+function resetFilter() {
     document.getElementById('s').value = '';
     document.getElementById('typeFilter').value = '';
     searchQuerye = '';
     typeFilter = '';
-    c = 1;
-    l();
+    currentPage = 1;
+    loadPokemons();
 }
 
-function p1() {
-    if (c > 1) {
-        c--;
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
         if (typeFilter !== '') {
             renderGrid();
         } else {
-            l();
+            loadPokemons();
         }
     }
 }
 
-function p2() {
-    c++;
+function nextPage() {
+    currentPage++;
     if (typeFilter !== '') {
         renderGrid();
     } else {
-        l();
+        loadPokemons();
     }
 }
 
-function x() {
+function darkMode() {
     document.body.classList.toggle('dark');
 }
 
-async function Minhe_nha(id) {
+async function showPokemonDetails(id) {
     try {
-        var xpto = await fetch(API + '/' + id);
-        var p = await xpto.json();
+        const pokemonResponse = await fetch(API + '/' + id);
+        const pokemon = await pokemonResponse.json();
 
-        var zyz = await fetch(p.species.url);
-        var m = await zyz.json();
+        const speciesResponse = await fetch(pokemon.species.url);
+        const species = await speciesResponse.json();
 
-        var desc = '';
-        for (var i = 0; i < m.flavor_text_entries.length; i++) {
-            if (m.flavor_text_entries[i].language.name === 'en') {
-                desc = m.flavor_text_entries[i].flavor_text;
+        let description = '';
+        for (let i = 0; i < species.flavor_text_entries.length; i++) {
+            if (species.flavor_text_entries[i].language.name === 'en') {
+                description = species.flavor_text_entries[i].flavor_text;
                 break;
             }
         }
 
-        document.getElementById('modalTitle').textContent = '#' + p.id + ' ' + p.name.charAt(0).toUpperCase() + p.name.slice(1);
+        document.getElementById('modalTitle').textContent =
+            '#' + pokemon.id + ' ' + 
+            pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
 
-        var ph = '<div class="row"><div class="col-md-6">';
-        ph += '<div class="sprite-container">';
-        ph += '<div><img src="' + p.sprites.front_default + '" alt="front"><p class="text-center">Normal</p></div>';
-        ph += '<div><img src="' + p.sprites.front_shiny + '" alt="shiny"><p class="text-center">Shiny</p></div>';
-        ph += '</div>';
+        let html = '<div class="row"><div class="col-md-6">';
+        html += '<div class="sprite-container">';
+        html += '<div><img src="' + pokemon.sprites.front_default + '" alt="front"><p class="text-center">Normal</p></div>';
+        html += '<div><img src="' + pokemon.sprites.front_shiny + '" alt="shiny"><p class="text-center">Shiny</p></div>';
+        html += '</div>';
 
-        ph += '<p><strong>Tipo:</strong> ';
-        for (var i = 0; i < p.types.length; i++) {
-            ph += '<span class="badge type-' + p.types[i].type.name + '">' + p.types[i].type.name + '</span> ';
+        html += '<p><strong>Tipo:</strong> ';
+        for (let i = 0; i < pokemon.types.length; i++) {
+            html += '<span class="badge type-' + pokemon.types[i].type.name + '">' + pokemon.types[i].type.name + '</span> ';
         }
-        ph += '</p>';
+        html += '</p>';
 
-        ph += '<p><strong>Altura:</strong> ' + (p.height / 10) + ' m</p>';
-        ph += '<p><strong>Peso:</strong> ' + (p.weight / 10) + ' kg</p>';
+        html += '<p><strong>Altura:</strong> ' + (pokemon.height / 10) + ' m</p>';
+        html += '<p><strong>Peso:</strong> ' + (pokemon.weight / 10) + ' kg</p>';
 
-        ph += '<p><strong>Habilidades:</strong> ';
-        for (var i = 0; i < p.abilities.length; i++) {
-            ph += p.abilities[i].ability.name;
-            if (i < p.abilities.length - 1) ph += ', ';
+        html += '<p><strong>Habilidades:</strong> ';
+        for (let i = 0; i < pokemon.abilities.length; i++) {
+            html += pokemon.abilities[i].ability.name;
+            if (i < pokemon.abilities.length - 1) html += ', ';
         }
-        ph += '</p>';
+        html += '</p>';
 
-        ph += '</div><div class="col-md-6">';
+        html += '</div><div class="col-md-6">';
+        html += '<p><strong>Descrição:</strong></p>';
+        html += '<p>' + description.replace(/\f/g, ' ') + '</p>';
 
-        ph += '<p><strong>Descrição:</strong></p>';
-        ph += '<p>' + desc.replace(/\f/g, ' ') + '</p>';
-
-        ph += '<h6>Estatísticas:</h6>';
-        for (var i = 0; i < p.stats.length; i++) {
-            var stat = p.stats[i];
-            var percentage = (stat.base_stat / 255) * 100;
-            ph += '<div><small>' + stat.stat.name + ': ' + stat.base_stat + '</small>';
-            ph += '<div class="stat-bar"><div class="stat-fill" style="width: ' + percentage + '%"></div></div></div>';
+        html += '<h6>Estatísticas:</h6>';
+        for (let i = 0; i < pokemon.stats.length; i++) {
+            let stat = pokemon.stats[i];
+            let percentage = (stat.base_stat / 255) * 100;
+            html += '<div><small>' + stat.stat.name + ': ' + stat.base_stat + '</small>';
+            html += '<div class="stat-bar"><div class="stat-fill" style="width: ' + percentage + '%"></div></div></div>';
         }
 
-        ph += '</div></div>';
+        html += '</div></div>';
 
-        document.getElementById('modalBody').innerHTML = ph;
+        document.getElementById('modalBody').innerHTML = html;
 
-        var mod = new bootstrap.Modal(document.getElementById('m'));
-        mod.show();
+        const modal = new bootstrap.Modal(document.getElementById('m'));
+        modal.show();
 
-    } catch (error) {
-        console.log('erro');
-        alert('Erro ao carregar detalhes!');
+} catch (error) {
+    console.log(error);
+    alert('Erro ao carregar detalhes!');
     }
 }
 
-function mor() {
-    var x = 10;
-    var y = 20;
-    return x + y;
+function loadPage() {
+    init();
 }
 
-var gmord = 'teste miqueias';
-
-window.onload = function () {
-    i();
-};
+window.onload = loadPage;
