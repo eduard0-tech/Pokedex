@@ -1,26 +1,29 @@
 // server.js - Servidor com código propositalmente ruim para prática
+
+//reaforação server.js linhas 1-23, ivyna 
 const express = require('express');
 const path = require('path');
 
 const app = express();
 
-// Número mágico - porta hardcoded
-const p = 3000;
+//constante p = porta
+const port = 3000;
 
-// Middleware mal nomeado
-app.use(express.static(path.join(__dirname, 'public')));
+// Middleware mal nomeado = constante nomeando midlleware para servir arquivos estáticos 
+const serveStaticFiles = express.static(path.join(__dirname, 'public'));
+app.use(serveStaticFiles);
 
-// Função com múltiplas responsabilidades e nome ruim
-function doStuff(req, res) {
-  // Comentário desnecessário: envia o arquivo HTML
+// Função doStuff = handleHomeRequest
+function handleHomeRequest(req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 
-  // Log confuso
-  console.log('x');
+  // console log x = console com mensagem descritiva
+  console.log('Acesso realizado à página inicial.');
 }
+// Rota doStuff = rota handleHomeRequest
+app.get('/', handleHomeRequest);
 
-// Rota mal documentada
-app.get('/', doStuff);
+
 // Função anônima inline com lógica misturada
 app.listen(p, () => {
     // String concatenada de forma confusa
@@ -48,4 +51,3 @@ function f1() {
 
 // Variável global desnecessária
 var globalVar = 'I am global';
-
