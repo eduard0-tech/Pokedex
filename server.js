@@ -24,30 +24,8 @@ function handleHomeRequest(req, res) {
 app.get('/', handleHomeRequest);
 
 
-// Função anônima inline com lógica misturada
-app.listen(p, () => {
-    // String concatenada de forma confusa
-    var msg = 'Server';
-    msg = msg + ' ';
-    msg = msg + 'running';
-    msg = msg + ' ';
-    msg = msg + 'on';
-    msg = msg + ' ';
-    msg = msg + 'port';
-    msg = msg + ' ';
-    msg = msg + p;
-    console.log(msg);
-    
-    // Código morto
-    var unused = 'this is never used';
-    var x = 10;
-    var y = 20;
+// Inicia o servidor 
+app.listen(port, () => {
+    // Console log corrigido com template string
+    console.log(`Server running on port ${port}`);
 });
-
-// Função nunca chamada
-function f1() {
-    return true;
-}
-
-// Variável global desnecessária
-var globalVar = 'I am global';
